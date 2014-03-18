@@ -3,10 +3,13 @@ $(document).ready(function() {
   var clip = new ZeroClipboard($("#d_clip_button"));
 
   clip.on("load", function (client) {
-    debugstr("Flash movie loaded and ready.");
-
+    debugstr("Flash movie loaded and ready. Version: " + ZeroClipboard.version);
+		var inIframe = !$("iframe")[0];
     client.on("complete", function (client, args) {
-      debugstr("Copied text to clipboard: " + args.text);
+			if (inIframe) {
+				window.parent.postMessage(args.text, "*");
+			}
+			debugstr("Copied text to clipboard: " + args.text);
     });
   });
 
@@ -30,5 +33,11 @@ $(document).ready(function() {
     $("#fe_text").val("Copy me!");
     $("#testarea").val("");
   });
-
+	
+	window.addEventListener("message", receiveMessage, false);
+	function receiveMessage(event)
+	{
+			debugstr("Message received here from: " + event.source);
+			debugstr("Message was: " + event.data);
+	};
 });
